@@ -35,7 +35,9 @@ function getSessionId() {
   const existing = window.localStorage.getItem(storageKey);
   if (existing) return existing;
 
-  const created = window.crypto.randomUUID();
+  const created =
+    window.crypto?.randomUUID?.() ??
+    `rps-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
   window.localStorage.setItem(storageKey, created);
   return created;
 }
@@ -64,7 +66,8 @@ export function GameDashboard() {
         const data = await listGames(getSessionId());
         if (!active) return;
         setGames(data);
-      } catch {
+      } catch (loadError) {
+        console.error("Failed to load game history.", loadError);
         if (!active) return;
         setError("기록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.");
       } finally {
@@ -104,7 +107,8 @@ export function GameDashboard() {
         const savedGame = await createGame(getSessionId(), playerChoice);
         setLatest(savedGame);
         setGames((current) => [savedGame, ...current]);
-      } catch {
+      } catch (saveError) {
+        console.error("Failed to save game.", saveError);
         setError("경기 저장에 실패했어요. 한 번 더 선택해 주세요.");
       } finally {
         setPlaying(false);
