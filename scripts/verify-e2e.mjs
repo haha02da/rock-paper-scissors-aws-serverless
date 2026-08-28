@@ -7,12 +7,13 @@ const browser = await chromium.launch({
 
 const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
 const consoleErrors = [];
+const baseUrl = process.env.BASE_URL ?? "http://localhost:3000";
 page.on("console", (message) => {
   if (message.type() === "error") consoleErrors.push(message.text());
 });
 
 try {
-  await page.goto("http://localhost:3000", { waitUntil: "networkidle" });
+  await page.goto(baseUrl, { waitUntil: "networkidle" });
 
   const heading = page.getByRole("heading", { name: "가위바위보 아레나" });
   await heading.waitFor();
@@ -34,6 +35,7 @@ try {
   await page.screenshot({ path: "/tmp/rps-arena-verified.png", fullPage: true });
   console.log(JSON.stringify({
     status: "passed",
+    baseUrl,
     title: await page.title(),
     totalBefore,
     totalAfter: totalBefore + 1,

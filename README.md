@@ -2,6 +2,8 @@
 
 Next.js와 Supabase로 만든 가위바위보 게임입니다. 모든 경기 결과를 저장하고 누적 승률과 최근 기록을 보여줍니다.
 
+**라이브 데모:** https://rock-paper-scissors-arena-seven.vercel.app
+
 ## 로컬 실행
 
 ```bash
