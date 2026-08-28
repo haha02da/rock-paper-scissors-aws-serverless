@@ -1,19 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { supabase } from "@/lib/supabase";
-
-type Choice = "rock" | "paper" | "scissors";
-type Result = "win" | "draw" | "loss";
-
-type Game = {
-  id: number;
-  session_id: string;
-  player_choice: Choice;
-  computer_choice: Choice;
-  result: Result;
-  created_at: string;
-};
+import {
+  createGame,
+  listGames,
+  type Choice,
+  type Game,
+  type Result,
+} from "@/lib/api";
 
 const choices: Array<{
   value: Choice;
@@ -35,17 +29,6 @@ const resultLabel: Record<Result, string> = {
   draw: "무승부",
   loss: "패배",
 };
-
-function getResult(player: Choice, computer: Choice): Result {
-  if (player === computer) return "draw";
-
-  const playerWins =
-    (player === "rock" && computer === "scissors") ||
-    (player === "paper" && computer === "rock") ||
-    (player === "scissors" && computer === "paper");
-
-  return playerWins ? "win" : "loss";
-}
 
 function getSessionId() {
   const storageKey = "rps-session-id";
@@ -77,19 +60,16 @@ export function GameDashboard() {
     let active = true;
 
     async function loadGames() {
-      const { data, error: loadError } = await supabase
-        .from("rps_games")
-        .select("id, session_id, player_choice, computer_choice, result, created_at")
-        .order("created_at", { ascending: false });
-
-      if (!active) return;
-
-      if (loadError) {
+      try {
+        const data = await listGames(getSessionId());
+        if (!active) return;
+        setGames(data);
+      } catch {
+        if (!active) return;
         setError("기록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.");
-      } else {
-        setGames((data ?? []) as Game[]);
+      } finally {
+        if (active) setLoading(false);
       }
-      setLoading(false);
     }
 
     void loadGames();
@@ -120,29 +100,15 @@ export function GameDashboard() {
       setPlaying(true);
       setError(null);
 
-      const computerChoice = choices[Math.floor(Math.random() * choices.length)].value;
-      const result = getResult(playerChoice, computerChoice);
-      const { data, error: insertError } = await supabase
-        .from("rps_games")
-        .insert({
-          session_id: getSessionId(),
-          player_choice: playerChoice,
-          computer_choice: computerChoice,
-          result,
-        })
-        .select("id, session_id, player_choice, computer_choice, result, created_at")
-        .single();
-
-      if (insertError || !data) {
+      try {
+        const savedGame = await createGame(getSessionId(), playerChoice);
+        setLatest(savedGame);
+        setGames((current) => [savedGame, ...current]);
+      } catch {
         setError("경기 저장에 실패했어요. 한 번 더 선택해 주세요.");
+      } finally {
         setPlaying(false);
-        return;
       }
-
-      const savedGame = data as Game;
-      setLatest(savedGame);
-      setGames((current) => [savedGame, ...current]);
-      setPlaying(false);
     },
     [playing],
   );
@@ -317,7 +283,7 @@ export function GameDashboard() {
         </section>
 
         <footer className="mt-8 flex flex-col justify-between gap-2 text-xs font-bold text-[#756d80] sm:flex-row">
-          <p>모든 경기 기록은 Supabase에 안전하게 저장됩니다.</p>
+          <p>모든 경기 기록은 AWS DynamoDB에 안전하게 저장됩니다.</p>
           <p>가위는 보를 이기고 · 보는 바위를 이기고 · 바위는 가위를 이겨요</p>
         </footer>
       </div>
