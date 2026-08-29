@@ -24,8 +24,14 @@ aws ecr get-login-password --region "$eks_region" | docker login --username AWS 
 eks_api_image="${eks_registry}/rps-arena-api:${eks_tag}"
 eks_web_image="${eks_registry}/rps-arena-web:${eks_tag}"
 
-docker buildx build --platform linux/amd64 --provenance=false -f "$eks_root/backend/Dockerfile" -t "$eks_api_image" --push "$eks_root"
-docker buildx build --platform linux/amd64 --provenance=false -f "$eks_root/Dockerfile.web" -t "$eks_web_image" --push "$eks_root"
+if ! aws ecr describe-images --region "$eks_region" --repository-name rps-arena-api --image-ids imageTag="$eks_tag" >/dev/null 2>&1; then
+  docker buildx build --platform linux/amd64 --provenance=false -f "$eks_root/backend/Dockerfile" -t "$eks_api_image" --push "$eks_root"
+fi
+
+(cd "$eks_root" && NEXT_PUBLIC_API_URL=/api NEXT_PUBLIC_SITE_URL=http://localhost npm run build)
+if ! aws ecr describe-images --region "$eks_region" --repository-name rps-arena-web --image-ids imageTag="$eks_tag" >/dev/null 2>&1; then
+  docker buildx build --platform linux/amd64 --provenance=false -f "$eks_root/infrastructure/eks/Dockerfile.web.runtime" -t "$eks_web_image" --push "$eks_root"
+fi
 
 aws eks update-kubeconfig --region "$eks_region" --name "$eks_cluster"
 kubectl apply -f "$eks_root/infrastructure/eks/k8s.yaml"

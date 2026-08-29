@@ -287,7 +287,7 @@ export function GameDashboard() {
         </section>
 
         <footer className="mt-8 flex flex-col justify-between gap-2 text-xs font-bold text-[#756d80] sm:flex-row">
-          <p>모든 경기 기록은 AWS DynamoDB에 안전하게 저장됩니다.</p>
+          <p>모든 경기 기록은 AWS 데이터베이스에 안전하게 저장됩니다.</p>
           <p>가위는 보를 이기고 · 보는 바위를 이기고 · 바위는 가위를 이겨요</p>
         </footer>
       </div>
