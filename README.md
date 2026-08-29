@@ -89,7 +89,7 @@ kubectl get secret -n monitoring monitoring-grafana-admin \
 
 ## 자동 확장
 
-HPA는 웹 서버와 API 서버를 각각 최소 2개에서 최대 10개 Pod까지 CPU 60% 또는 메모리 75% 기준으로 조절합니다. Karpenter는 Pod를 배치할 공간이 부족할 때 Spot 또는 On-Demand EC2 노드를 추가하며 최대 32 vCPU와 64GiB로 제한됩니다.
+HPA는 웹 서버와 API 서버를 각각 최소 2개에서 최대 10개 Pod까지 CPU 60% 기준으로 조절합니다. Karpenter는 Pod를 배치할 공간이 부족할 때 Spot 또는 On-Demand EC2 노드를 추가하며 최대 32 vCPU와 64GiB로 제한됩니다.
 
 Karpenter의 AWS IAM, Pod Identity, 인터럽션 큐 및 네트워크 태그를 준비한 후 Git 변경을 푸시합니다.
 
