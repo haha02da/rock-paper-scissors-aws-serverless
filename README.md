@@ -110,6 +110,22 @@ kubectl get ec2nodeclass,nodepool,nodeclaim
 kubectl get nodes -L karpenter.sh/nodepool,karpenter.sh/capacity-type
 ```
 
+## Gateway API 트래픽 라우팅
+
+Envoy Gateway가 Kubernetes Gateway API를 구현합니다. Gateway 프록시는 CPU 60% 기준으로 2~10개까지 자동 확장됩니다.
+
+- `/api/*` → `rps-api:8080` (`/api` prefix 제거)
+- `/*` → `rps-web:80`
+
+```bash
+kubectl get gatewayclass,gateway,httproute -A
+kubectl get hpa -n envoy-gateway-system
+kubectl get service -n envoy-gateway-system \
+  -l gateway.envoyproxy.io/owning-gateway-name=rps-gateway
+```
+
+가중치 기반 카나리 라우팅이 필요하면 `HTTPRoute`의 `backendRefs`에 백엔드를 추가하고 `weight` 비율을 변경합니다.
+
 ## 주요 기능
 
 - 가위·바위·보 즉시 대결

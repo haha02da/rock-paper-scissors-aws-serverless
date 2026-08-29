@@ -4,6 +4,7 @@ metadata:
   name: default
 spec:
   role: KarpenterNodeRole-rps-arena-eks
+  amiFamily: AL2023
   amiSelectorTerms:
     - id: ami-0b7a835c9436ce9e3
   subnetSelectorTerms:
