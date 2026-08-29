@@ -1,0 +1,101 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: 88.6.1
+    helm:
+      releaseName: monitoring
+      values: |
+        crds:
+          enabled: true
+
+        alertmanager:
+          alertmanagerSpec:
+            resources:
+              requests:
+                cpu: 50m
+                memory: 128Mi
+              limits:
+                cpu: 200m
+                memory: 256Mi
+
+        grafana:
+          admin:
+            existingSecret: monitoring-grafana-admin
+            userKey: admin-user
+            passwordKey: admin-password
+          persistence:
+            enabled: true
+            type: sts
+            storageClassName: rps-gp3
+            accessModes:
+              - ReadWriteOnce
+            size: 5Gi
+          service:
+            type: ClusterIP
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+
+        prometheus:
+          service:
+            type: ClusterIP
+          prometheusSpec:
+            retention: 7d
+            retentionSize: 8GB
+            resources:
+              requests:
+                cpu: 300m
+                memory: 1Gi
+              limits:
+                cpu: 1
+                memory: 2Gi
+            storageSpec:
+              volumeClaimTemplate:
+                spec:
+                  storageClassName: rps-gp3
+                  accessModes:
+                    - ReadWriteOnce
+                  resources:
+                    requests:
+                      storage: 10Gi
+
+        prometheusOperator:
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+
+        kubeControllerManager:
+          enabled: false
+        kubeEtcd:
+          enabled: false
+        kubeScheduler:
+          enabled: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      enabled: true
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+  revisionHistoryLimit: 10

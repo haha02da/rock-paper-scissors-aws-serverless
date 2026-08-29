@@ -58,6 +58,35 @@ chmod +x infrastructure/deploy.sh
 
 배포 결과 URL과 리소스 이름은 `deployment-output.json`에 기록됩니다.
 
+## GitOps 및 모니터링
+
+Argo CD가 GitHub `main` 브랜치를 자동 동기화하고, `kube-prometheus-stack`으로 Prometheus와 Grafana를 설치합니다. Grafana와 Prometheus는 기본적으로 외부에 공개되지 않습니다.
+
+```bash
+chmod +x infrastructure/gitops/bootstrap.sh
+./infrastructure/gitops/bootstrap.sh
+```
+
+Argo CD 접속:
+
+```bash
+kubectl port-forward -n argocd service/argo-cd-argocd-server 8081:443
+kubectl get secret -n argocd argocd-initial-admin-secret \
+  -o jsonpath='{.data.password}' | base64 --decode; echo
+```
+
+브라우저에서 `https://localhost:8081`에 접속하고 사용자명 `admin`을 사용합니다.
+
+Grafana 접속:
+
+```bash
+kubectl port-forward -n monitoring service/monitoring-grafana 3000:80
+kubectl get secret -n monitoring monitoring-grafana-admin \
+  -o jsonpath='{.data.admin-password}' | base64 --decode; echo
+```
+
+브라우저에서 `http://localhost:3000`에 접속하고 사용자명 `admin`을 사용합니다. Prometheus는 `kubectl port-forward -n monitoring service/monitoring-kube-prometheus-prometheus 9090:9090`으로 접근할 수 있습니다.
+
 ## 주요 기능
 
 - 가위·바위·보 즉시 대결
