@@ -22,6 +22,12 @@ aws cloudformation deploy \
   --capabilities CAPABILITY_NAMED_IAM \
   --parameter-overrides "ClusterName=${karpenter_cluster}"
 
+if ! aws iam get-role \
+  --role-name AWSServiceRoleForEC2Spot >/dev/null 2>&1; then
+  aws iam create-service-linked-role \
+    --aws-service-name spot.amazonaws.com >/dev/null
+fi
+
 karpenter_trust_policy='{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"pods.eks.amazonaws.com"},"Action":["sts:AssumeRole","sts:TagSession"]}]}'
 
 if ! aws iam get-role --role-name "$karpenter_controller_role" >/dev/null 2>&1; then

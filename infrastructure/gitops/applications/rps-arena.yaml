@@ -14,6 +14,19 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: rps-arena
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      name: rps-api
+      namespace: rps-arena
+      jsonPointers:
+        - /spec/replicas
+    - group: apps
+      kind: Deployment
+      name: rps-web
+      namespace: rps-arena
+      jsonPointers:
+        - /spec/replicas
   syncPolicy:
     automated:
       enabled: true
@@ -21,4 +34,5 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - RespectIgnoreDifferences=true
   revisionHistoryLimit: 10
