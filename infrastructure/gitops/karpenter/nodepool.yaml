@@ -5,7 +5,7 @@ metadata:
 spec:
   role: KarpenterNodeRole-rps-arena-eks
   amiSelectorTerms:
-    - alias: al2023@latest
+    - id: ami-0b7a835c9436ce9e3
   subnetSelectorTerms:
     - tags:
         karpenter.sh/discovery: rps-arena-eks

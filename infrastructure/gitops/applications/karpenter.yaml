@@ -23,6 +23,10 @@ spec:
         settings:
           clusterName: rps-arena-eks
           interruptionQueue: rps-arena-eks
+        serviceMonitor:
+          enabled: true
+          additionalLabels:
+            release: monitoring
         nodeSelector:
           eks.amazonaws.com/nodegroup: rps-apps
         controller:
