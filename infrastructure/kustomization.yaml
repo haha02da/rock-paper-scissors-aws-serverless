@@ -3,6 +3,8 @@ kind: Kustomization
 
 resources:
   - eks/k8s.yaml
+  - eks/hpa.yaml
+  - eks/pdb.yaml
 
 images:
   - name: REPLACE_API_IMAGE

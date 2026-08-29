@@ -1,0 +1,46 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: karpenter
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: public.ecr.aws/karpenter
+    chart: karpenter
+    targetRevision: 1.14.1
+    helm:
+      releaseName: karpenter
+      values: |
+        replicas: 2
+        serviceAccount:
+          create: true
+          name: karpenter
+        settings:
+          clusterName: rps-arena-eks
+          interruptionQueue: rps-arena-eks
+        nodeSelector:
+          eks.amazonaws.com/nodegroup: rps-apps
+        controller:
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+            limits:
+              cpu: 1
+              memory: 1Gi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+  syncPolicy:
+    automated:
+      enabled: true
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+  revisionHistoryLimit: 10

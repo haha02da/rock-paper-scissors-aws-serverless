@@ -1,0 +1,21 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: rps-api
+  namespace: rps-arena
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: rps-api
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: rps-web
+  namespace: rps-arena
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: rps-web
