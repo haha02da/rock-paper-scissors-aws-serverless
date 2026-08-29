@@ -2,13 +2,13 @@
 
 Next.js로 만든 가위바위보 게임입니다. 모든 경기 결과를 저장하고 누적 승률과 최근 기록을 보여줍니다. 같은 앱을 AWS 서버리스와 EKS 컨테이너 아키텍처로 각각 배포할 수 있습니다.
 
-- **EKS 라이브 데모:** http://a8a2767b13241474c9d985bd0e250c94-6736acbf7b3594e4.elb.ap-northeast-2.amazonaws.com
+- **EKS 라이브 데모:** http://a9f8b1c4fface4c7598361ab094c6475-fcdbc55666ff2ce2.elb.ap-northeast-2.amazonaws.com
 - **서버리스 라이브 데모:** http://rps-arena-719030485343-ap-northeast-2.s3-website.ap-northeast-2.amazonaws.com
 
 ## EKS 컨테이너 아키텍처
 
 - EKS 1.36 관리형 클러스터와 `t3.medium` 노드 2대
-- NLB → Nginx 웹 서버 2 replicas → Flask/Gunicorn 앱 서버 2 replicas
+- NLB → Envoy Gateway → Nginx 웹 서버 2 replicas / Flask·Gunicorn 앱 서버 2 replicas
 - PostgreSQL 17 StatefulSet 1 replica와 5Gi gp3 EBS 영구 볼륨
 - ECR의 웹·API `linux/amd64` 컨테이너 이미지
 - 기존 DynamoDB 경기 기록을 PostgreSQL로 중복 없이 이관하는 스크립트
