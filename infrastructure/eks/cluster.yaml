@@ -1,0 +1,34 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: rps-arena-eks
+  region: ap-northeast-2
+  version: "1.36"
+  tags:
+    CreatedBy: Codex
+
+availabilityZones:
+  - ap-northeast-2a
+  - ap-northeast-2c
+
+iam:
+  withOIDC: true
+
+addons:
+  - name: aws-ebs-csi-driver
+    wellKnownPolicies:
+      ebsCSIController: true
+
+managedNodeGroups:
+  - name: rps-apps
+    instanceType: t3.medium
+    desiredCapacity: 2
+    minSize: 1
+    maxSize: 3
+    volumeSize: 20
+    volumeType: gp3
+    labels:
+      workload: rps-arena
+    tags:
+      CreatedBy: Codex

@@ -17,6 +17,7 @@
 /.next/
 /out/
 /deployment-output.json
+/eks-deployment-output.json
 
 # production
 /build

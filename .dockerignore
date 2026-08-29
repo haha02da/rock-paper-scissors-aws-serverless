@@ -1,0 +1,7 @@
+.git
+.next
+node_modules
+out
+deployment-output.json
+infrastructure/lambda/__pycache__
+npm-debug.log
